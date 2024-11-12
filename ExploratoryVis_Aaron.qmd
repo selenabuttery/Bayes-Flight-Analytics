@@ -29,6 +29,34 @@ Create a binary column for delays longer \>10 minutes = "Yes" and early departur
 ```{r}
 features_small$Delayed <- ifelse(features_small$DepDelayMinutes > 10, "Yes", "No")
 features_small$Delayed <- factor(features_small$Delayed)
+features_small$DayofWeek <- as.factor(features_small$DayofWeek)
+features_small <- features_small %>% 
+  mutate(DayofWeek = case_when(
+    DayofWeek == 1 ~ "monday",
+    DayofWeek == 2 ~ "tuesday",
+    DayofWeek == 3 ~ "wednesday",
+    DayofWeek == 4 ~ "thursday",
+    DayofWeek == 5 ~ "friday",
+    DayofWeek == 6 ~ "saturday",
+    DayofWeek == 7 ~ "sunday",
+    DayofWeek == 9 ~ "unknown",
+  ))
+features_small <- features_small %>% filter(!is.na(DayofWeek))
+
+features_small <- features_small %>% 
+  mutate(Marketing_Airline_Network = case_when(
+    Marketing_Airline_Network == "AS" ~ "Alaska",
+    Marketing_Airline_Network == "B6" ~ "JetBlue",
+    Marketing_Airline_Network == "WN" ~ "Southwest",
+    Marketing_Airline_Network == "AA" ~ "American",
+    Marketing_Airline_Network == "DL" ~ "Delta",
+    Marketing_Airline_Network == "G4" ~ "Allegiant",
+    Marketing_Airline_Network == "UA" ~ "United",
+    Marketing_Airline_Network == "HA" ~ "Hawaiian",
+    Marketing_Airline_Network == "F9" ~ "Frontier",
+    Marketing_Airline_Network == "NK" ~ "Spirit",
+    Marketing_Airline_Network == "VX" ~ "Virgin",
+  ))
 ```
 
 Split data and train model
@@ -43,18 +71,42 @@ Build the naive Bayes model
 
 ```{r}
 nb_model <- naiveBayes(Delayed ~ Marketing_Airline_Network  +
-                        DayofWeek + FlightDate + Holidays,
+                        DayofWeek + Holidays + OriginCityName + DestCityName,
                        data = train_data)
 ```
+
+Make Predictions
 
 ```{r}
 predictions <- predict(nb_model, newdata = test_data)
 ```
 
+Experiment with sensitivity
+
+```{r}
+predicted_probs <- predict(nb_model, newdata = test_data, type = "raw")[, "Yes"]  # Probabilities for "Yes" (Delayed)
+
+# Set a custom threshold for classification
+threshold <- 0.3  # Experiment with this value
+predicted_classes <- ifelse(predicted_probs >= threshold, "Yes", "No")
+
+# Convert to factors to match original data
+predicted_classes <- factor(predicted_classes, levels = levels(test_data$Delayed))
+
+# Evaluate the model
+library(caret)
+confusion <- confusionMatrix(predicted_classes, test_data$Delayed, positive = "Yes")
+print(confusion)
+```
+
+Create a confusion Matrix
+
 ```{r}
 confusion_matrix <- table(Predicted = predictions, Actual = test_data$Delayed)
 print(confusion_matrix)
 ```
+
+Show the model's accuracy percentage
 
 ```{r}
 accuracy <- mean(predictions == test_data$Delayed)
