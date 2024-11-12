@@ -1,0 +1,62 @@
+---
+title: "ExploratoryVis_Aaron"
+format:
+  html:
+    theme: default
+---
+
+Load Libraries
+
+```{r}
+library(arrow)
+library(dplyr)
+library(ggplot2)
+library(e1071)
+```
+
+Read Data
+
+```{r}
+features <- read_parquet("features_added.parquet")
+```
+
+```{r}
+features_small <- sample_frac(features, 0.1)
+```
+
+Create a binary column for delays longer \>10 minutes = "Yes" and early departures or \<10 minutes = "No"
+
+```{r}
+features_small$Delayed <- ifelse(features_small$DepDelayMinutes > 10, "Yes", "No")
+features_small$Delayed <- factor(features_small$Delayed)
+```
+
+Split data and train model
+
+```{r}
+train_index <- sample(1:nrow(features_small), 0.7 * nrow(features_small))
+train_data <- features_small[train_index, ]
+test_data <- features_small[-train_index, ]
+```
+
+Build the naive Bayes model
+
+```{r}
+nb_model <- naiveBayes(Delayed ~ Marketing_Airline_Network  +
+                        DayofWeek + FlightDate + Holidays,
+                       data = train_data)
+```
+
+```{r}
+predictions <- predict(nb_model, newdata = test_data)
+```
+
+```{r}
+confusion_matrix <- table(Predicted = predictions, Actual = test_data$Delayed)
+print(confusion_matrix)
+```
+
+```{r}
+accuracy <- mean(predictions == test_data$Delayed)
+print(paste("Accuracy:", round(accuracy * 100, 2), "%"))
+```
