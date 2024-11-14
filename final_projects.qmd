@@ -1,0 +1,203 @@
+---
+title: "Final Projects"
+format: html
+editor: visual
+---
+
+#### 1. Documentation
+
+Github repository (6 points)
+
+-   Nice readme file with CUH logo, description of the project, data, code, and links to each project members github profile
+
+-   Students need to be able to fork the repository and rerun the entire analysis without editing any code
+
+-   Each group member must be marked as a *contributor* on github
+
+#### 2. Code
+
+Exploratory Data Viz (4 points)
+
+-   Visualize the data, highlight key findings
+
+Bayesian Methods (6 points)
+
+-   Utilize a Bayesian approach specific to your project
+
+#### 3. Presentation
+
+Group Presentation (8 points)
+
+-   Show the code as rendered qmd or shiny app (no powerpoints)
+
+    -   Exploratory Data Viz
+
+    -   Bayesian Methods
+
+    -   Results
+
+------------------------------------------------------------
+
+# Flight Delay Prediction Shiny App
+
+[Data on Kaggle](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay/)
+
+Objective: Create a shiny app that allows users to input information about their upcoming flight and see a probability that the flight will be delayed
+
+Also do a T-test to find correlation of delay to distance traveled. (Week10: ttestBF)
+
+Guidance: read_parquet, sample the dataset if it is too large
+
+```{r}
+library(shiny)
+library(caret)
+library(dplyr)
+library(arrow)
+library(ggplot2)
+library(e1071)
+```
+
+```{r}
+data <- read_parquet("features_added.parquet")
+df <- sample_frac(data, 0.1)
+```
+
+```{r}
+df <- df %>%
+  mutate(Delayed = ifelse(DepDelayMinutes > 10 | ArrDelayMinutes > 10, 1, 0))
+```
+
+```{r}
+# Prepare the dataset
+df$Delayed <- ifelse(df$DepDelayMinutes > 10, "Yes", "No")
+df$Delayed <- factor(df$Delayed)
+df$DayofWeek <- as.factor(df$DayofWeek)
+df <- df %>%
+  mutate(DayofWeek = case_when(
+    DayofWeek == 1 ~ "monday",
+    DayofWeek == 2 ~ "tuesday",
+    DayofWeek == 3 ~ "wednesday",
+    DayofWeek == 4 ~ "thursday",
+    DayofWeek == 5 ~ "friday",
+    DayofWeek == 6 ~ "saturday",
+    DayofWeek == 7 ~ "sunday"
+  ))
+
+df <- df %>%
+  mutate(Marketing_Airline_Network = case_when(
+    Marketing_Airline_Network == "AS" ~ "Alaska",
+    Marketing_Airline_Network == "B6" ~ "JetBlue",
+    Marketing_Airline_Network == "WN" ~ "Southwest",
+    Marketing_Airline_Network == "AA" ~ "American",
+    Marketing_Airline_Network == "DL" ~ "Delta",
+    Marketing_Airline_Network == "G4" ~ "Allegiant",
+    Marketing_Airline_Network == "UA" ~ "United",
+    Marketing_Airline_Network == "HA" ~ "Hawaiian",
+    Marketing_Airline_Network == "F9" ~ "Frontier",
+    Marketing_Airline_Network == "NK" ~ "Spirit",
+    Marketing_Airline_Network == "VX" ~ "Virgin"
+  ))
+```
+
+### Exploratory Data Analysis
+
+```{r}
+
+```
+
+### Naive Bayes
+
+```{r}
+# Train-test split
+train_index <- sample(1:nrow(df), 0.7 * nrow(df))
+train_data <- df[train_index, ]
+test_data <- df[-train_index, ]
+```
+
+```{r}
+# Train the Naive Bayes model
+nb_model <- naiveBayes(Delayed ~ Marketing_Airline_Network + DayofWeek + Holidays + OriginCityName + DestCityName,
+                       data = train_data)
+```
+
+### T-Test
+
+```{r}
+library(bayesrules)
+library(BayesFactor)
+
+ttestBF(
+  formula = Distance ~ Delayed,  # Numeric variable on left, categorical on right
+  data = df
+)
+```
+
+### Shiny App
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Flight Delay Prediction"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("airline", "Airline", choices = unique(df$Marketing_Airline_Network)),
+      selectInput("dayofweek", "Day of the Week", choices = unique(df$DayofWeek)),
+      selectInput("holiday", "Holiday", choices = c("No", "Yes")),
+      selectInput("origin", "Origin City", choices = unique(df$OriginCityName)),
+      selectInput("destination", "Destination City", choices = unique(df$DestCityName)),
+      actionButton("predict", "Predict Delay")
+    ),
+    mainPanel(
+      textOutput("prediction_result"),
+      textOutput("accuracy_result")
+    )
+  )
+)
+```
+
+```{r}
+# Define server logic
+server <- function(input, output) {
+  observeEvent(input$predict, {
+    # Create a new data frame for prediction based on user input
+    new_data <- df(
+      Marketing_Airline_Network = input$airline,
+      DayofWeek = input$dayofweek,
+      Holidays = ifelse(input$holiday, "Yes", "No"),
+      OriginCityName = input$origin,
+      DestCityName = input$destination,
+      stringsAsFactors = FALSE
+    )
+    
+    # Predict delay probability and classify based on threshold
+    predicted_prob <- predict(nb_model, newdata = new_data, type = "raw")[, "Yes"]
+    threshold <- 0.3  # Custom threshold for delay classification
+    predicted_class <- ifelse(predicted_prob >= threshold, "Yes", "No")
+   
+    # Display the result
+    output$prediction_result <- renderText({
+      paste("Predicted Delay:", predicted_class, "with probability", round(predicted_prob * 100, 2), "%")
+    })
+   
+    # Show model accuracy
+    output$accuracy_result <- renderText({
+      paste("Model Accuracy:", round(mean(predict(nb_model, test_data) == test_data$Delayed) * 100, 2), "%")
+    })
+  })
+}
+```
+
+```{r}
+# Run the application
+shinyApp(ui = ui, server = server)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+```
