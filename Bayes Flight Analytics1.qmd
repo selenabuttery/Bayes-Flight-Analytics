@@ -1,0 +1,57 @@
+---
+title: "Bayes Flight Analytics1"
+format: html
+editor: visual
+---
+
+```{r}
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+#### Install packages
+
+```{r}
+install.packages("arrow")
+```
+
+#### Libraries
+
+```{r}
+library(arrow)
+library(dplyr)
+library(shiny)
+library(tidyverse)
+library(lubridate)
+```
+
+#### Read dataset
+
+```{r}
+features <- read_parquet("features_added.parquet")
+```
+
+```{r}
+features_small <- sample_frac(features, 0.1)
+```
+
+#### Distribution of flight delays
+
+```{r}
+avg_delay_airline <- features_small %>%
+  group_by(Marketing_Airline_Network) %>%
+  summarise(average_delay = mean(ArrDelayMinutes, na.rm = TRUE))
+
+ggplot(avg_delay_airline, aes(x = reorder(Marketing_Airline_Network, -average_delay), y = average_delay)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Average Arrival Delay by Airline", x = "Airline", y = "Average Arrival Delay (minutes)") +
+  theme_minimal()
+```
+
+#### Departure delay vs arrival delay
+
+```{r}
+ggplot(features_small, aes(x = DepDelayMinutes, y = ArrDelayMinutes)) +
+  geom_point(alpha = 0.4, color = "darkred") +
+  labs(title = "Departure Delay vs. Arrival Delay", x = "Departure Delay (minutes)", y = "Arrival Delay (minutes)") +
+  theme_minimal()
+```
