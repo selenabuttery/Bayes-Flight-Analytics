@@ -12,8 +12,6 @@ Flight Delay Dataset: <br />
 [Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br /> <br />
 This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
 
-<img src="https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg" alt="Chaminade Logo" width="300" height="200">
-
 
 ## Contributors:
 - [Aaron Rice](https://github.com/aaronxrice)
@@ -22,4 +20,4 @@ This includes data from 2018 to 2023-4 and contains information about the schedu
 - [Selena Buttery](https://github.com/selenabuttery)
 - [Kandielynn Ueligitone](https://github.com/kueligitone)
 
-
+<img src="https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg" alt="Chaminade Logo" width="300" height="200">
