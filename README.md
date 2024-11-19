@@ -10,11 +10,12 @@ Get ready to unravel the secrets of the skies with our captivating Flight Delay 
 🌤️ Whether it's scheduled arrivals or actual departures, we're here to decode the enigma of delays, not cancellations or diversions. <br />
 🔬 Unearth the core reasons behind flight delays! Analyze the patterns and factors that make the skies a theater of punctuality's trials and tribulations. <br />
 
-Flight Delay Dataset:
-This includes data from 2018 to 2023-04 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
+Flight Delay Dataset: <br />
+[Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br />
+This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
 
 ![Logo](https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg)
-
+<img src="[image-url](https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg)" alt="Alt Text" width="300" height="200">
 
 ## Contributors:
 - [Aaron Rice](https://github.com/aaronxrice)
