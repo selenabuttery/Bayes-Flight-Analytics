@@ -1,7 +1,7 @@
 # Bayes in The Skies: Navigating Flight Delays
-<br />
 
-US Flight Delays: Arrival & Departure for Analysis and ML Modeling<br />
+US Flight Delays: Arrival & Departure for Analysis and ML Modeling<br /><br />
+
 🛩️ Welcome aboard the Flight Delay Exploration Journey! 🌍✈️. <br />
 📊 Get ready to unravel the secrets of the skies with our captivating Flight Delay Dataset. <br />
 📅 Traverse through time from 2018 to 2023-04, unlocking insights that were previously hidden above the clouds! <br />
@@ -12,7 +12,6 @@ US Flight Delays: Arrival & Departure for Analysis and ML Modeling<br />
 Flight Delay Dataset: <br /><br />
 [Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br />
 This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
-
 
 ## Contributors:
 - [Aaron Rice](https://github.com/aaronxrice)
