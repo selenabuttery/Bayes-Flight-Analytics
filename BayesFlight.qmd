@@ -1,0 +1,85 @@
+---
+title: "BayesFlight"
+format: html
+editor: visual
+---
+
+#### Libraries
+
+```{r, message = FALSE}
+library (arrow)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(BayesFactor)
+```
+
+Read in Dataset:
+
+```{r}
+flight <- read_parquet("/Users/kandielynnnueligitone/Desktop/DS 400/Bayes-Flight-Analytics/Flight_Delay.parquet")
+```
+
+### Exploratory Analysis:
+
+Delay by Airport (Origin or Destination)
+
+```{r}
+# Average departure delay by origin airport
+origin_delay <- flight %>%
+  group_by(OriginCityName) %>%
+  summarize(avg_dep_delay = mean(DepDelayMinutes, na.rm = TRUE)) %>%
+  arrange(desc(avg_dep_delay))
+
+# Bar plot for top 10 airports with the most delays
+ggplot(origin_delay[1:10, ], aes(x = reorder(OriginCityName, avg_dep_delay), y = avg_dep_delay)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Top 10 Airports by Average Departure Delay",
+       x = "Airport", y = "Average Departure Delay (minutes)") +
+  coord_flip()  # Flip axis for better readability
+```
+
+Delay Types
+
+```{r}
+# Aggregate delay types by month
+delay_types <- flight %>%
+  mutate(month = format(as.Date(FlightDate), "%Y-%m")) %>%
+  group_by(month) %>%
+  summarize(
+    avg_carrier_delay = mean(CarrierDelay, na.rm = TRUE),
+    avg_weather_delay = mean(WeatherDelay, na.rm = TRUE),
+    avg_nas_delay = mean(NASDelay, na.rm = TRUE),
+    avg_security_delay = mean(SecurityDelay, na.rm = TRUE),
+    avg_late_aircraft_delay = mean(LateAircraftDelay, na.rm = TRUE)
+  )
+
+# Stacked bar plot of delay types
+delay_types %>%
+  gather(key = "DelayType", value = "AverageDelay", -month) %>%
+  ggplot(aes(x = month, y = AverageDelay, fill = DelayType)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Delay by Type (Stacked by Month)",
+       x = "Month", y = "Average Delay (minutes)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Flight Delay vs. Distance
+
+```{r}
+flight <- flight %>%
+  mutate(Delayed = ifelse(DepDelayMinutes > 0, 1, 0))
+```
+
+```{r}
+flight %>%
+  group_by(Delayed) %>%
+  summarise(mean_distance = mean(Distance))
+```
+
+```{r}
+ttestBF(
+  formula = Distance ~ Delayed,
+  data = flight
+)
+```
