@@ -1,0 +1,212 @@
+---
+title: "ExploratoryVis_Aaron"
+format:
+  html:
+    theme: default
+---
+
+Load Libraries
+
+```{r}
+library(arrow)
+library(dplyr)
+library(ggplot2)
+library(e1071)
+library(shiny)
+library(shinyWidgets)
+```
+
+Read Data
+
+```{r}
+features <- read_parquet("features_added.parquet")
+```
+
+```{r}
+features_small <- sample_frac(features, 0.1)
+```
+
+Create a binary column for delays longer \>10 minutes = "Yes" and early departures or \<10 minutes = "No"
+
+```{r}
+features_small$Delayed <- ifelse(features_small$DepDelayMinutes > 10, "Yes", "No")
+features_small$Delayed <- factor(features_small$Delayed)
+features_small$DayofWeek <- as.factor(features_small$DayofWeek)
+features_small <- features_small %>% 
+  mutate(DayofWeek = case_when(
+    DayofWeek == 1 ~ "monday",
+    DayofWeek == 2 ~ "tuesday",
+    DayofWeek == 3 ~ "wednesday",
+    DayofWeek == 4 ~ "thursday",
+    DayofWeek == 5 ~ "friday",
+    DayofWeek == 6 ~ "saturday",
+    DayofWeek == 7 ~ "sunday",
+    DayofWeek == 9 ~ "unknown",
+  ))
+features_small <- features_small %>% filter(!is.na(DayofWeek))
+
+features_small <- features_small %>% 
+  mutate(Marketing_Airline_Network = case_when(
+    Marketing_Airline_Network == "AS" ~ "Alaska",
+    Marketing_Airline_Network == "B6" ~ "JetBlue",
+    Marketing_Airline_Network == "WN" ~ "Southwest",
+    Marketing_Airline_Network == "AA" ~ "American",
+    Marketing_Airline_Network == "DL" ~ "Delta",
+    Marketing_Airline_Network == "G4" ~ "Allegiant",
+    Marketing_Airline_Network == "UA" ~ "United",
+    Marketing_Airline_Network == "HA" ~ "Hawaiian",
+    Marketing_Airline_Network == "F9" ~ "Frontier",
+    Marketing_Airline_Network == "NK" ~ "Spirit",
+    Marketing_Airline_Network == "VX" ~ "Virgin",
+  ))
+```
+
+Distribution of Flight Delays
+
+```{r}
+{r}
+avg_delay_airline <- features_small %>%
+  group_by(Marketing_Airline_Network) %>%
+  summarise(average_delay = mean(ArrDelayMinutes, na.rm = TRUE))
+
+ggplot(avg_delay_airline, aes(x = reorder(Marketing_Airline_Network, -average_delay), y = average_delay)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Average Arrival Delay by Airline", x = "Airline", y = "Average Arrival Delay (minutes)") +
+  theme_minimal()
+```
+
+Departure Delay vs. Arrival Delay
+
+```{r}
+ggplot(features_small, aes(x = DepDelayMinutes, y = ArrDelayMinutes)) +
+  geom_point(alpha = 0.4, color = "darkred") +
+  labs(title = "Departure Delay vs. Arrival Delay", x = "Departure Delay (minutes)", y = "Arrival Delay (minutes)") +
+  theme_minimal()
+```
+
+### Create Bayes Model
+
+Split data and train model
+
+```{r}
+train_index <- sample(1:nrow(features_small), 0.7 * nrow(features_small))
+train_data <- features_small[train_index, ]
+test_data <- features_small[-train_index, ]
+```
+
+Build the naive Bayes model
+
+```{r}
+nb_model <- naiveBayes(Delayed ~ Marketing_Airline_Network  +
+                        DayofWeek + OriginCityName + DestCityName,
+                       data = train_data)
+```
+
+Make Predictions
+
+```{r}
+predictions <- predict(nb_model, newdata = test_data)
+```
+
+Create a confusion Matrix
+
+```{r}
+confusion_matrix <- table(Predicted = predictions, Actual = test_data$Delayed)
+print(confusion_matrix)
+```
+
+Show the model's accuracy percentage
+
+```{r}
+accuracy <- mean(predictions == test_data$Delayed)
+print(paste("Accuracy:", round(accuracy * 100, 2), "%"))
+```
+
+Define Shiny App UI
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Flight Delay Prediction"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("airline", "Select Airline:", choices = unique(train_data$Marketing_Airline_Network)),
+      selectInput("origin_city", "Select Departure City:", choices = unique(train_data$OriginCityName)),
+      selectInput("dest_city", "Select Arrival City:", choices = unique(train_data$DestCityName)),
+      selectInput("day_of_week", "Select Day of the Week:", 
+            choices = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+      actionButton("predict", "Predict Delay Probability")
+    ),
+    
+    mainPanel(
+      h3("Prediction Result"),
+      textOutput("prediction_text")
+    )
+  )
+)
+```
+
+Define the Shiny App Server
+
+```{r}
+server <- function(input, output, session) {
+  
+  # Update origin and destination cities based on selected airline
+  observeEvent(input$airline, {
+    # Filter cities where the selected airline operates
+    available_cities <- subset(train_data, Marketing_Airline_Network == input$airline)
+    
+    # Unique origin and destination cities for the selected airline
+    origin_cities <- unique(available_cities$OriginCityName)
+    dest_cities <- unique(available_cities$DestCityName)
+    
+    # Update the origin and destination city dropdowns
+    updateSelectInput(session, "origin_city", choices = origin_cities)
+    updateSelectInput(session, "dest_city", choices = dest_cities)
+  })
+  
+  # Update Day of Week based on airline, origin, and destination
+  observeEvent(c(input$airline, input$origin_city, input$dest_city), {
+    # Check which days the selected airline operates for the selected route
+    available_days <- subset(train_data, 
+                             Marketing_Airline_Network == input$airline & 
+                             OriginCityName == input$origin_city & 
+                             DestCityName == input$dest_city)
+    
+    # Extract unique days of the week for the selected airline and route
+    valid_days <- unique(available_days$DayofWeek)
+    
+    # Update Day of Week dropdown with valid options only
+    updateSelectInput(session, "day_of_week", choices = valid_days)
+  })
+  
+  # Make the prediction when 'Predict' button is clicked
+  observeEvent(input$predict, {
+    # Create a new data frame for prediction based on input values
+    new_data <- data.frame(
+      Marketing_Airline_Network = input$airline,
+      DayofWeek = input$day_of_week,
+      OriginCityName = input$origin_city,
+      DestCityName = input$dest_city,
+      stringsAsFactors = TRUE
+    )
+    
+    # Predict probability of delay using the naive Bayes model
+    prediction <- predict(nb_model, newdata = new_data, type = "raw")
+    
+    # Extract probability of being delayed (assuming 'Delayed' has levels 'Yes' and 'No')
+    delay_prob <- prediction[1, "Yes"] * 100  # Assuming 'Yes' is the delayed class
+    
+    # Display result in UI
+    output$prediction_text <- renderText({
+      paste("Probability of Delay:", round(delay_prob, 2), "%")
+    })
+  })
+}
+```
+
+Run the Shiny App
+
+```{r}
+shinyApp(ui = ui, server = server)
+```
