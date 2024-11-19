@@ -1,7 +1,5 @@
 # Bayes in The Skies: Navigating Flight Delays
 
-- [Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet)
-
 US Flight Delays: Arrival & Departure for Analysis and ML Modeling
 
 🛩️ Welcome aboard the Flight Delay Exploration Journey! 🌍✈️. <br />
@@ -11,7 +9,7 @@ US Flight Delays: Arrival & Departure for Analysis and ML Modeling
 🔬 Unearth the core reasons behind flight delays! Analyze the patterns and factors that make the skies a theater of punctuality's trials and tribulations. <br />
 
 Flight Delay Dataset: <br />
-[Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br />
+[Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br /> <br />
 This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
 
 <img src="https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg" alt="Chaminade Logo" width="300" height="200">
