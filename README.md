@@ -20,6 +20,6 @@ This includes data from 2018 to 2023-4 and contains information about the schedu
 - [Krystin Nishiguchi](https://github.com/kristynnish)
 - [Johnny Bae](https://github.com/9un-Bae)
 - [Selena Buttery](https://github.com/selenabuttery)
-- [Kandielynn Ueligitone](https://github.com/9un-Bae)
+- [Kandielynn Ueligitone](https://github.com/kueligitone)
 
 
