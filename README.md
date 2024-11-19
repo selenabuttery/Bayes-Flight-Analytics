@@ -15,7 +15,8 @@ Flight Delay Dataset: <br />
 This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
 
 ![Logo](https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg)
-<img src="[image-url](https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg)" width="200" height="100">
+<img src="[image-url](https://assets.chaminade.edu/wp-content/uploads/2018/08/08074025/Chaminade-Logo-Centered.jpg)" alt="Alt Text" width="300" height="200">
+
 
 ## Contributors:
 - [Aaron Rice](https://github.com/aaronxrice)
