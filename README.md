@@ -12,7 +12,7 @@
 [Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br />
 This includes data from 2018 to 2023-4 and contains information about the scheduled arrival time, actual arrival time, scheduled departure time, and actual departure time focusing on delays, not cancellations or diverted flights.
 
-### Contributors:
+### Contributors
 - [Aaron Rice](https://github.com/aaronxrice)
 - [Krystin Nishiguchi](https://github.com/kristynnish)
 - [Johnny Bae](https://github.com/9un-Bae)
