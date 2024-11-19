@@ -17,8 +17,8 @@ This includes data from 2018 to 2023-04 and contains information about the sched
 
 
 ## Contributors:
-- [Aaron Rice](https://github.com/9un-Bae)
-- [Krystin Nishiguchi](https://github.com/9un-Bae)
+- [Aaron Rice](https://github.com/aaronxrice)
+- [Krystin Nishiguchi](https://github.com/kristynnish)
 - [Johnny Bae](https://github.com/9un-Bae)
 - [Selena Buttery](https://github.com/selenabuttery)
 - [Kandielynn Ueligitone](https://github.com/9un-Bae)
