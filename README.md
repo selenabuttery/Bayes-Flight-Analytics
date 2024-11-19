@@ -6,7 +6,6 @@
 📅 Traverse through time from 2018 to 2023-04, unlocking insights that were previously hidden above the clouds! <br />
 🌤️ Whether it's scheduled arrivals or actual departures, we're here to decode the enigma of delays, not cancellations or diversions. <br />
 🔬 Unearth the core reasons behind flight delays! Analyze the patterns and factors that make the skies a theater of punctuality's trials and tribulations. <br />
-<br />
 
 ## Dataset
 [Kaggle Dataset: Flight Delay](https://www.kaggle.com/datasets/arvindnagaonkar/flight-delay?resource=download&select=Flight_Delay.parquet) <br />
